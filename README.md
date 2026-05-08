@@ -174,7 +174,7 @@ dotnet run --project PetAdopt.API
 Scalar UI:
 
 ```text
-http://localhost:5189/scalar/v1
+https://localhost:7003/scalar/v1
 ```
 
 ---
@@ -263,11 +263,11 @@ Password: AdminTest@1234
 
 ## Favorites
 
-| Method | Endpoint                        |
-| ------ | --------------------------------|
-| POST    | `/api/Favorite/add`            |
-| GET     | `/api/Favorite/my-favorites`   |
-| DELETE  | `/api/Favorite/remove/{petId}​` |
+| Method | Endpoint                                    |
+| ------ | --------------------------------------------|
+| POST    | `/api/Favorite/add`						   |
+| GET     | `/api/Favorite/my-favorites/{adopterId}`   |
+| DELETE  | `/api/Favorite/remove/{petId}​`             |
 
 ---
 

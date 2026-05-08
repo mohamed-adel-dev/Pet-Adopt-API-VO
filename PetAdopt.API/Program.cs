@@ -112,7 +112,10 @@ namespace PetAdopt
                 }
             }
 
-            app.Urls.Add("http://0.0.0.0:8080");
+            if (app.Environment.IsProduction())
+            {
+                app.Urls.Add("http://0.0.0.0:8080");
+            }
 
             app.Run();
         }
