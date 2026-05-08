@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".gitignore" />
+    <File Path="Dockerfile" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="PetAdopt.API/PetAdopt.API.csproj" />
+  <Project Path="PetAdopt.BLL/PetAdopt.BLL.csproj" />
+  <Project Path="PetAdopt.DAL/PetAdopt.DAL.csproj" />
+</Solution>

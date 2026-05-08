@@ -1,0 +1,57 @@
+﻿# Build folders
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / VSCode
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NuGet
+packages/
+*.nupkg
+
+# Environment files
+.env
+
+# Docker
+docker-compose.override.yml
+
+# EF Core local DB files
+*.mdf
+*.ldf
+
+# Publish output
+publish/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Node modules (if frontend added later)
+node_modules/
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Coverage / Testing
+coverage/
+TestResults/
+
+# Secrets
+secrets.json
+appsettings.Development.json
