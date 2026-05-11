@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PetAdopt.BLL.Services.Interfaces;
 
@@ -10,15 +9,17 @@ namespace PetAdopt.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
+        // Dependency Injection of the Admin Service
         private readonly IAdminService _adminService;
-
         public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
         }
 
+
         // ----------- USERS ------------
 
+        // PUT: api/Admin/approve-user/123
         [HttpPut("approve-user/{userId}")]
         public async Task<IActionResult> ApproveUser(string userId)
         {
@@ -37,6 +38,8 @@ namespace PetAdopt.Controllers
             }
         }
 
+
+        // PUT: api/Admin/reject-user/123
         [HttpGet("pending-users")]
         public async Task<IActionResult> GetPendingUsers()
         {
@@ -45,8 +48,11 @@ namespace PetAdopt.Controllers
             return Ok(users);
         }
 
+
         // ----------- PETS ------------
 
+
+        // GET: api/Admin/pending-pets
         [HttpGet("pending-pets")]
         public async Task<IActionResult> GetPendingPets()
         {
@@ -56,6 +62,7 @@ namespace PetAdopt.Controllers
         }
 
 
+        // PUT: api/Admin/approve-pet/5
         [HttpPut("approve-pet/{petId}")]
         public async Task<IActionResult> ApprovePet(int petId)
         {
@@ -74,6 +81,8 @@ namespace PetAdopt.Controllers
             }
         }
 
+
+        // PUT: api/Admin/reject-pet/5
         [HttpPut("reject-pet/{petId}")]
         public async Task<IActionResult> RejectPet(int petId)
         {
@@ -91,7 +100,5 @@ namespace PetAdopt.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
     }
 }

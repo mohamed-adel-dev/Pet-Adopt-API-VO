@@ -5,16 +5,18 @@ using PetAdopt.BLL.Services.Interfaces;
 
 namespace PetAdopt.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PetController : ControllerBase
     {
+        // Dependency Injection of the Pet Service
         private readonly IPetService _petService;
-
         public PetController(IPetService petService)
         {
             _petService = petService;
         }
+
 
         // GET: api/Pet
         [HttpGet("all")]
@@ -55,6 +57,8 @@ namespace PetAdopt.Controllers
             return Ok(pets);
         }
 
+
+        // POST: api/Pet/create?ownerId=123&ownerName=ShelterName
         [Authorize(Roles = "Shelter")]
         [HttpPost("create")]
         public async Task<IActionResult> Create(
@@ -78,6 +82,7 @@ namespace PetAdopt.Controllers
         }
 
 
+        // DELETE: api/Pet/delete/5?ownerId=123
         [Authorize(Roles = "Shelter")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(
@@ -102,9 +107,8 @@ namespace PetAdopt.Controllers
             }
         }
 
-
+        // PUT: api/Pet/update/5?ownerId=123
         [Authorize(Roles = "Shelter")]
-
         [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(
         int id,
@@ -126,6 +130,8 @@ namespace PetAdopt.Controllers
             }
         }
 
+
+        // GET: api/Pet/my-pets?ownerId=123
         [Authorize(Roles = "Shelter")]
         [HttpGet("my-pets")]
         public async Task<IActionResult> GetMyPets([FromQuery] string ownerId)
@@ -134,6 +140,5 @@ namespace PetAdopt.Controllers
 
             return Ok(pets);
         }
-
     }
 }

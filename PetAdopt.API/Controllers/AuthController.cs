@@ -5,15 +5,18 @@ using PetAdopt.BLL.Services.Interfaces;
 
 namespace PetAdopt.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
+        // Dependency Injection of the Auth Service
         private readonly IAuthService _authService;
         public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
+
 
         // ----------REGISTER----------
 
@@ -33,7 +36,9 @@ namespace PetAdopt.Controllers
             }
         }
 
+
         // ----------LOGIN----------
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
@@ -54,8 +59,10 @@ namespace PetAdopt.Controllers
             }
         }
 
+
         // ----------LOGOUT----------
 
+       
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

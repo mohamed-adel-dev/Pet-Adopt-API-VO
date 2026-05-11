@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PetAdopt.BLL.DTOs;
 using PetAdopt.BLL.Services.Interfaces;
@@ -21,6 +20,7 @@ namespace PetAdopt.Controllers
 
 
         // POST api/feedback/create?adopterId=123
+        [Authorize(Roles = "Adopter")]
         [HttpPost("create")]
         public async Task<IActionResult> Create(
         [FromQuery] string adopterId,

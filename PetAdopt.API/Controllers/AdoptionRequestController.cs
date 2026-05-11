@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PetAdopt.BLL.DTOs;
-using PetAdopt.BLL.Services.Implementations;
 using PetAdopt.BLL.Services.Interfaces;
-using PetAdopt.DAL.Entities;
 using PetAdopt.Hubs;
 
 namespace PetAdopt.Controllers
@@ -14,10 +12,10 @@ namespace PetAdopt.Controllers
     [ApiController]
     public class AdoptionRequestController : ControllerBase
     {
+        // Dependency Injection of the Adoption Request Service, Hub Context, and Pet Service
         private readonly IAdoptionRequestService _adoptionRequestService;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IPetService _petService;
-
         public AdoptionRequestController(
             IAdoptionRequestService adoptionRequestService, IHubContext<NotificationHub> hubContext, IPetService petService)
         {
@@ -26,10 +24,13 @@ namespace PetAdopt.Controllers
             _hubContext = hubContext;
         }
 
+
+        // POST: api/AdoptionRequest/send?adopterId=123
+        [Authorize(Roles = "Adopter")]
         [HttpPost("send")]
         public async Task<IActionResult> SendRequest(
-    [FromQuery] string adopterId,
-    [FromBody] CreateAdoptionRequestDto dto)
+        [FromQuery] string adopterId,
+        [FromBody] CreateAdoptionRequestDto dto)
         {
             try
             {
@@ -54,10 +55,12 @@ namespace PetAdopt.Controllers
         }
 
 
+        // PUT: api/AdoptionRequest/accept/5?ownerId=123
+        [Authorize(Roles = "Shelter")]
         [HttpPut("accept/{requestId}")]
         public async Task<IActionResult> AcceptRequest(
-    int requestId,
-    [FromQuery] string ownerId)
+        int requestId,
+        [FromQuery] string ownerId)
         {
             try
             {
@@ -84,11 +87,12 @@ namespace PetAdopt.Controllers
         }
 
 
-
+        // PUT: api/AdoptionRequest/reject/5?ownerId=123
+        [Authorize(Roles = "Shelter")]
         [HttpPut("reject/{requestId}")]
         public async Task<IActionResult> RejectRequest(
-    int requestId,
-    [FromQuery] string ownerId)
+        int requestId,
+        [FromQuery] string ownerId)
         {
             try
             {
@@ -116,10 +120,11 @@ namespace PetAdopt.Controllers
         }
 
 
-
+        // GET: api/AdoptionRequest/owner-requests?ownerId=123
+        [Authorize(Roles = "Shelter")]
         [HttpGet("owner-requests")]
         public async Task<IActionResult> GetOwnerRequests(
-    [FromQuery] string ownerId)
+        [FromQuery] string ownerId)
         {
             try
             {
@@ -133,6 +138,5 @@ namespace PetAdopt.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
     }
 }

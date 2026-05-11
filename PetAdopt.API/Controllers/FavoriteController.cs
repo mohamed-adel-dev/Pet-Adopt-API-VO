@@ -4,22 +4,25 @@ using PetAdopt.BLL.Services.Interfaces;
 
 namespace PetAdopt.Controllers
 {
+    [Authorize(Roles = "Adopter")]
     [Route("api/[controller]")]
     [ApiController]
     public class FavoriteController : ControllerBase
     {
-        private readonly IFavoriteService _favoriteService;
 
+        // Dependency Injection of the Favorite Service
+        private readonly IFavoriteService _favoriteService;
         public FavoriteController(IFavoriteService favoriteService)
         {
             _favoriteService = favoriteService;
         }
 
 
+        // POST: api/Favorite/add?adopterId=123&petId=5
         [HttpPost("add")]
         public async Task<IActionResult> Add(
-    [FromQuery] string adopterId,
-    [FromQuery] int petId)
+        [FromQuery] string adopterId,
+        [FromQuery] int petId)
         {
             try
             {
@@ -37,11 +40,11 @@ namespace PetAdopt.Controllers
         }
 
 
-
+        // DELETE: api/Favorite/remove/5?adopterId=123     
         [HttpDelete("remove/{petId}")]
         public async Task<IActionResult> Remove(
-    int petId,
-    [FromQuery] string adopterId)
+        int petId,
+        [FromQuery] string adopterId)
         {
             try
             {
@@ -62,7 +65,7 @@ namespace PetAdopt.Controllers
         }
 
 
-        [Authorize(Roles = "Adopter")]
+        // GET: api/Favorite/my-favorites?adopterId=123
         [HttpGet("my-favorites/{adopterId}")]
         public async Task<IActionResult> GetFavorites(
         [FromQuery] string adopterId)
@@ -78,6 +81,5 @@ namespace PetAdopt.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
     }
 }
