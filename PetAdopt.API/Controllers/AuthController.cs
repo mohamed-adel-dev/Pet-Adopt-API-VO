@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetAdopt.BLL.DTOs;
 using PetAdopt.BLL.Services.Interfaces;
@@ -8,6 +9,7 @@ namespace PetAdopt.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         // Dependency Injection of the Auth Service

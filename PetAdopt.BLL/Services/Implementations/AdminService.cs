@@ -78,18 +78,29 @@ namespace PetAdopt.BLL.Services.Implementations
         {
 
             // fetch users with pending status and map to DTO
-            return await _userManager.Users
+            var users = await _userManager.Users
                 .Where(u => u.Status == UserStatus.Pending)
-                .Select(u => new UserDto
-                {
-                    Id = u.Id,
-                    FullName = u.FullName,
-                    Email = u.Email ?? string.Empty,
-                    Status = u.Status.ToString()
-                })
                 .ToListAsync();
-        }
 
+            var result = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+
+                result.Add(new UserDto
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email ?? string.Empty,
+                    Status = user.Status.ToString(),
+                    Role = roles.FirstOrDefault() ?? ""
+                });
+            }
+
+            return result;
+
+        }
         // ===================== PETS =====================
 
         public async Task<bool> ApprovePetPostAsync(int petId)

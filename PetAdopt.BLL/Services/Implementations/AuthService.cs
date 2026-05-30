@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using PetAdopt.BLL.DTOs;
 using PetAdopt.BLL.Services.Interfaces;
+using PetAdopt.BLL.Services.Interfaces.JWT;
 using PetAdopt.DAL.Entities;
 using PetAdopt.DAL.Entities.Enums;
 
@@ -9,16 +10,18 @@ namespace PetAdopt.BLL.Services.Implementations
     public class AuthService : IAuthService
     {
 
-        // Dependency injection of UserManager and SignInManager for handling user operations
+        // Dependency injection of UserManager and SignInManager for handling user operations, and IJwtTokenService for generating JWT tokens
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-
+        private readonly IJwtTokenService _jwtTokenService;
         public AuthService(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IJwtTokenService jwtTokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _jwtTokenService = jwtTokenService;
         }
 
         // ================= REGISTER =================
@@ -101,14 +104,28 @@ namespace PetAdopt.BLL.Services.Implementations
             // Get roles
             var roles = await _userManager.GetRolesAsync(user);
 
+            // Create UserDto for token generation
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email!,
+                Role = roles.FirstOrDefault() ?? "Adopter"
+            };
+
+            // Generate JWT token
+            var token = _jwtTokenService.GenerateToken(userDto);
+
             // Return response
             return new AuthResponseDto
             {
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email ?? string.Empty,
-                Role = roles.FirstOrDefault() ?? "Adopter"
+                Role = roles.FirstOrDefault() ?? "Adopter",
+                Token = token
             };
+           
         }
     }
 }

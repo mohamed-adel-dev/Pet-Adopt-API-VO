@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PetAdopt.BLL.Services.Implementations;
+using PetAdopt.BLL.Services.Implementations.JWT;
 using PetAdopt.BLL.Services.Interfaces;
+using PetAdopt.BLL.Services.Interfaces.JWT;
 using PetAdopt.DAL.Data;
 using PetAdopt.DAL.Entities;
 using PetAdopt.DAL.Entities.Enums;
@@ -9,6 +13,7 @@ using PetAdopt.DAL.Reposetories.Implementations;
 using PetAdopt.DAL.Reposetories.Interfaces;
 using PetAdopt.Hubs;
 using Scalar.AspNetCore;
+using System.Text;
 
 namespace PetAdopt
 {
@@ -27,17 +32,51 @@ namespace PetAdopt
             options.UseSqlServer(connectionString));
 
             // Identity
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>
-                (options => options.SignIn.RequireConfirmedAccount = false)
-
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
+            { 
+                options.SignIn.RequireConfirmedAccount = false; 
+            })
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+            // JWT Settings
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+            builder.Services.AddAuthentication(options =>
+            {
+                // Set the default authentication scheme to JWT Bearer
+                options.DefaultAuthenticateScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+
+                // Set the default challenge scheme to JWT Bearer (used when authentication fails)
+                options.DefaultChallengeScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true; // Save the token in the AuthenticationProperties after a successful authorization
+                options.RequireHttpsMetadata = true; // Disable HTTPS requirement for development/testing
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = jwtSettings["Issuer"],
+                        ValidAudience = jwtSettings["Audience"],
+
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
+                    };
+            });
+
+            // services
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
 
-            // services
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPetService, PetService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
@@ -45,8 +84,9 @@ namespace PetAdopt
             builder.Services.AddScoped<IAdoptionRequestService, AdoptionRequestService>();
             builder.Services.AddScoped<IFavoriteService, FavoriteService>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+            builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-           
+
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

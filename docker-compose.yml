@@ -1,0 +1,19 @@
+services:
+
+  petadopt-api:
+    build: .
+    container_name: petadopt-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
+    environment:
+      - ConnectionStrings__SecondaryConnection=Server=192.168.214.128,1433;Database=PetAdoptDBTwo;User Id=sa;Password=123456;TrustServerCertificate=True
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: petadopt-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Pass123
+    ports:
+      - "1433:1433"
