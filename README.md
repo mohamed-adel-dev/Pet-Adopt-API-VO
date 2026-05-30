@@ -56,7 +56,18 @@ PetAdopt/
 
 * Register & Login
 * ASP.NET Identity
+* JWT Authentication
 * Role-based authorization
+
+## 🔑 JWT Authentication
+
+After login the API returns a JWT token.
+
+Example:
+
+Authorization: Bearer <token>
+
+Protected endpoints require a valid JWT token.
 
 ### Roles
 
@@ -67,6 +78,10 @@ PetAdopt/
 ---
 
 ## 👨‍💼 Admin Features
+
+Protected with:
+
+[Authorize(Roles = "Admin")]
 
 * Approve users
 * Reject users
