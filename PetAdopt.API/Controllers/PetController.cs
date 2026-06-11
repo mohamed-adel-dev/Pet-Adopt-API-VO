@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using PetAdopt.BLL.DTOs;
 using PetAdopt.BLL.Services.Interfaces;
+using System.Text.Json;
 
 namespace PetAdopt.Controllers
 {
@@ -10,11 +12,13 @@ namespace PetAdopt.Controllers
     [ApiController]
     public class PetController : ControllerBase
     {
-        // Dependency Injection of the Pet Service
+        // Dependency Injection of the Pet Service and Distributed Cache
         private readonly IPetService _petService;
-        public PetController(IPetService petService)
+        private readonly IDistributedCache _cache;
+        public PetController(IPetService petService, IDistributedCache cache)
         {
             _petService = petService;
+            _cache = cache;
         }
 
 
@@ -32,12 +36,34 @@ namespace PetAdopt.Controllers
         [HttpGet("details/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            var cacheKey = $"Pet_{id}";
+
+            // Try to get the pet details from cache first 
+            var cachedPet = await _cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedPet))
+            {
+                var petFromCache = JsonSerializer.Deserialize<PetDto>(cachedPet);
+
+                return Ok(petFromCache);
+            }
+
             try
             {
                 var pet = await _petService.GetByIdAsync(id);
 
                 if (pet == null)
                     return NotFound("Pet not found");
+
+                // Store in Redis
+                await _cache.SetStringAsync(
+                    cacheKey,
+                    JsonSerializer.Serialize(pet),
+                    new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow =
+                            TimeSpan.FromMinutes(10)
+                    });
 
                 return Ok(pet);
             }
@@ -73,6 +99,9 @@ namespace PetAdopt.Controllers
                     ownerName,
                     dto);
 
+                // Remove cache
+                await _cache.RemoveAsync("Pets_All");
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -95,6 +124,9 @@ namespace PetAdopt.Controllers
 
                 if (!result)
                     return NotFound("Pet not found");
+                
+                // Remove cache
+                await _cache.RemoveAsync($"Pet_{id}");
 
                 return Ok(new
                 {
@@ -121,6 +153,9 @@ namespace PetAdopt.Controllers
                     id,
                     ownerId,
                     dto);
+
+                // Remove cache
+                await _cache.RemoveAsync($"Pet_{id}");
 
                 return Ok(result);
             }

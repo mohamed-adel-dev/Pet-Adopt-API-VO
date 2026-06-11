@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PetAdopt.BLL.DTOs;
 using PetAdopt.BLL.Services.Interfaces;
+using PetAdopt.BLL.Services.Interfaces.Caching;
 
 namespace PetAdopt.Controllers
 {
@@ -12,9 +14,11 @@ namespace PetAdopt.Controllers
 
         // Dependency Injection of the Favorite Service
         private readonly IFavoriteService _favoriteService;
-        public FavoriteController(IFavoriteService favoriteService)
+        private readonly ICacheService _cacheService;
+        public FavoriteController(IFavoriteService favoriteService, ICacheService cacheService)
         {
             _favoriteService = favoriteService;
+            _cacheService = cacheService;
         }
 
 
@@ -28,6 +32,8 @@ namespace PetAdopt.Controllers
             {
                 var result = await _favoriteService.AddAsync(adopterId, petId);
 
+                await _cacheService.RemoveAsync($"Favorites_{adopterId}");
+    
                 return Ok(new
                 {
                     Message = "Pet added to favorites successfully"
@@ -53,6 +59,8 @@ namespace PetAdopt.Controllers
                 if (!result)
                     return NotFound("Favorite not found");
 
+                await _cacheService.RemoveAsync($"Favorites_{adopterId}");
+    
                 return Ok(new
                 {
                     Message = "Favorite removed successfully"
@@ -70,9 +78,24 @@ namespace PetAdopt.Controllers
         public async Task<IActionResult> GetFavorites(
         [FromQuery] string adopterId)
         {
+            var cacheKey = $"Favorites_{adopterId}";
+
+            // Try to get the favorites from cache first
+            var cachedFavorites = await _cacheService.GetAsync<List<FavoriteResponseDto>>(cacheKey);
+
+            if (cachedFavorites != null)
+            {
+                return Ok(cachedFavorites);
+            }
+
             try
             {
                 var favorites = await _favoriteService.GetFavoritesAsync(adopterId);
+
+                await _cacheService.SetAsync(
+                    cacheKey,
+                    favorites,
+                    TimeSpan.FromMinutes(10));
 
                 return Ok(favorites);
             }

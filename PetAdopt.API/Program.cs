@@ -2,9 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PetAdopt.API.Infrastructure.Caching;
 using PetAdopt.BLL.Services.Implementations;
+using PetAdopt.BLL.Services.Implementations.Caching;
 using PetAdopt.BLL.Services.Implementations.JWT;
 using PetAdopt.BLL.Services.Interfaces;
+using PetAdopt.BLL.Services.Interfaces.Caching;
 using PetAdopt.BLL.Services.Interfaces.JWT;
 using PetAdopt.DAL.Data;
 using PetAdopt.DAL.Entities;
@@ -39,6 +42,19 @@ namespace PetAdopt
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+            // Redis Cache
+
+            // Bind Redis configuration from appsettings.json to RedisConfig class
+            var redisConfig = builder.Configuration.GetSection("Redis").Get<RedisConfig>();
+
+            // Register Redis cache services using the configuration values
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConfig!.Configuration;
+                options.InstanceName = redisConfig.InstanceName;
+            });
+
 
             // JWT Settings
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -85,6 +101,7 @@ namespace PetAdopt
             builder.Services.AddScoped<IFavoriteService, FavoriteService>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
 
 
 
