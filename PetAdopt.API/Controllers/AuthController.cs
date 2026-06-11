@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PetAdopt.BLL.DTOs;
 using PetAdopt.BLL.Services.Interfaces;
 
@@ -22,7 +23,7 @@ namespace PetAdopt.Controllers
 
         // ----------REGISTER----------
 
-
+        [EnableRateLimiting("fixed")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
@@ -41,7 +42,7 @@ namespace PetAdopt.Controllers
 
         // ----------LOGIN----------
 
-
+        [EnableRateLimiting("fixed")]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {

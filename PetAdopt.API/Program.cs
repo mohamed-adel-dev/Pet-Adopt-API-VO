@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PetAdopt.API.Infrastructure.Caching;
@@ -17,6 +18,7 @@ using PetAdopt.DAL.Reposetories.Interfaces;
 using PetAdopt.Hubs;
 using Scalar.AspNetCore;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace PetAdopt
 {
@@ -53,6 +55,18 @@ namespace PetAdopt
             {
                 options.Configuration = redisConfig!.Configuration;
                 options.InstanceName = redisConfig.InstanceName;
+            });
+
+            // rate limiting
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddFixedWindowLimiter("Fixed", limiterOptions =>
+                {
+                    limiterOptions.PermitLimit = 100; // Maximum 100 requests
+                    limiterOptions.Window = TimeSpan.FromMinutes(1); // Per 1 minute
+                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    limiterOptions.QueueLimit = 0; // No queuing, reject immediately when limit is exceeded
+                });
             });
 
 
@@ -100,6 +114,7 @@ namespace PetAdopt
             builder.Services.AddScoped<IAdoptionRequestService, AdoptionRequestService>();
             builder.Services.AddScoped<IFavoriteService, FavoriteService>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
             builder.Services.AddScoped<ICacheService, CacheService>();
 
@@ -127,6 +142,7 @@ namespace PetAdopt
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseRateLimiter();
 
             app.MapControllers();
             // SignalR hub mapping
