@@ -23,7 +23,7 @@ namespace PetAdopt.Controllers
 
         // ----------REGISTER----------
 
-        [EnableRateLimiting("fixed")]
+        [EnableRateLimiting("Fixed")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
@@ -42,7 +42,7 @@ namespace PetAdopt.Controllers
 
         // ----------LOGIN----------
 
-        [EnableRateLimiting("fixed")]
+        [EnableRateLimiting("Fixed")]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {

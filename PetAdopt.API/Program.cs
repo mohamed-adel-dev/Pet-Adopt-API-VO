@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PetAdopt.API.Infrastructure.Caching;
+using PetAdopt.API.Middleware;
 using PetAdopt.BLL.Services.Implementations;
 using PetAdopt.BLL.Services.Implementations.Caching;
 using PetAdopt.BLL.Services.Implementations.JWT;
@@ -133,9 +134,10 @@ namespace PetAdopt
             // Configure the HTTP request pipeline.
            // if (app.Environment.IsDevelopment())
             
-                app.MapOpenApi();
-                app.MapScalarApiReference();
-            
+            app.MapOpenApi();
+            app.MapScalarApiReference();
+
+         
 
             app.UseHttpsRedirection();
 
@@ -147,6 +149,9 @@ namespace PetAdopt
             app.MapControllers();
             // SignalR hub mapping
             app.MapHub<NotificationHub>("/notificationHub");
+
+            // global logging middleware
+            app.UseMiddleware<LoggingMiddleware>();
 
             // role seeding
             using (var scope = app.Services.CreateScope())
